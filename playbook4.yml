@@ -1,0 +1,22 @@
+---
+- name: Remove Apache WebServer from servers 
+  hosts: all
+  become: yes 
+
+
+  tasks: 
+  
+  - block: #Remove from RadHat
+
+      - name:  Remove from RadHat
+        yum: name=httpd state=absent
+
+    when: ansible_os_family=="RedHat"
+    
+  - block:  #Remove from Debian
+       
+      - name: Remove from Debian
+        apt: name=apache2 state=absent
+
+    when: ansible_os_family=="Debian"     
+

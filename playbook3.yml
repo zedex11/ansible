@@ -1,0 +1,48 @@
+---
+- name: Install Apache WebServ and copy start page on servers
+  hosts: all
+  become: yes 
+
+  vars: 
+     source_path: ./index.html
+     dest_path: /var/www/html
+
+  tasks:
+  - name: Check and Print version Linux
+    debug: 
+       var: ansible_os_family
+
+  - block:  #=========Block for RedHat========
+
+     - name: Install Apache WebServer for RedHat
+       yum: name=httpd state=latest 
+
+     - name: Copy start page 
+       copy: src={{ source_path }} dest={{ dest_path }} mode=0555
+       notify: Restart Apache RedHat
+
+     - name: Start WebServer service for RedHat
+       service: name=httpd state=started enabled=yes 
+
+    when: ansible_os_family=="RedHat"
+    
+  - block: #==========Block for Debian========
+
+     - name: Install Apache WebServer for Debian
+       apt: name=apache2 state=latest
+     
+     - name: Copy start page 
+       copy: src={{ source_path }} dest={{ dest_path }} mode=0555
+       notify: Restart Apache Debian
+
+     - name: Start WebServer service for Debian
+       service: name=apache2 state=started enabled=yes
+
+    when: ansible_os_family=="Debian"
+
+  handlers: 
+  - name: Restart Apache RedHat
+    service: name=httpd state=restarted 
+
+  - name: Restart Apache Debian
+    service: name=apache2 state=restarted 

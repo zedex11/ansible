@@ -1,0 +1,8 @@
+---
+- name : PING SERVERS 
+  hosts: all
+  become: yes
+
+  tasks:
+  - name: ping my serv
+    ping: 
