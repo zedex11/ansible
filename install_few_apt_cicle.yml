@@ -1,0 +1,18 @@
+---
+- name: Install Tree and Apache
+  hosts: all
+  become: yes 
+
+  tasks:
+
+  - name: Install Applications RadHat
+    yum: name={{ item }} state=latest 
+    loop: 
+      - httpd
+      - tree
+    when: ansible_os_family=="RedHat"
+
+  - name: nstall Applications Debian
+    apt: name="apache2, tree" state=latest
+
+    when: ansible_os_family=="Debian"

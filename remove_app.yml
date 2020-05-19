@@ -9,14 +9,21 @@
   - block: #Remove from RadHat
 
       - name:  Remove from RadHat
-        yum: name=httpd state=absent
+        yum: name={{ item }} state=absent
+        loop: 
+          - httpd
+          - tree
 
     when: ansible_os_family=="RedHat"
     
   - block:  #Remove from Debian
        
       - name: Remove from Debian
-        apt: name=apache2 state=absent
+        apt: name={{ item }} state=absent
+        loop:
+          - apache2
+          - tree 
+
 
     when: ansible_os_family=="Debian"     
 

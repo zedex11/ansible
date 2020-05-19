@@ -1,0 +1,49 @@
+---
+- name: Install Apache WebServ and copy start page on servers
+  hosts: all
+  become: yes 
+
+  vars: 
+     source_path: .
+     dest_path: /var/www/html
+
+  tasks:
+
+  - block:  #=========Block for RedHat========
+
+     - name: Install Apache WebServer for RedHat
+       yum: name=httpd state=latest 
+
+     - name: Start WebServer service for RedHat
+       service: name=httpd state=started enabled=yes 
+
+    when: ansible_os_family=="RedHat"
+    
+  - block: #==========Block for Debian========
+
+     - name: Install Apache WebServer for Debian
+       apt: name=apache2 state=latest
+     
+     - name: Start WebServer service for Debian
+       service: name=apache2 state=started enabled=yes
+
+    when: ansible_os_family=="Debian"
+
+
+  - name: Copy start page 
+    copy: src={{ item }} dest={{ dest_path }} mode=0555
+    with_fileglob: "{{ source_path }}/*.*" #скопировать всю папку  
+
+    notify: 
+      - Restart Apache RedHat
+      - Restart Apache Debian
+
+
+  handlers: 
+  - name: Restart Apache RedHat
+    service: name=httpd state=restarted 
+    when: ansible_os_family=="RedHat"
+
+  - name: Restart Apache Debian
+    service: name=apache2 state=restarted 
+    when: ansible_os_family=="Debian"

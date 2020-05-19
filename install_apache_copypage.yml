@@ -1,6 +1,6 @@
 ---
 - name: Install and cofigure apache serv with start page
-  hosts: all
+  hosts: REDHAT_SERV
   become: yes 
 
   vars:
