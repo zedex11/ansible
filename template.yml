@@ -3,43 +3,15 @@
   hosts: all
   become: yes 
 
-  vars: 
-     source_path: ./index.j2
-     dest_path: /var/www/html
+  roles:
+    - { role: deploy_apache_web, when: ansible_system == 'Linux'}
 
-  tasks:
-  - block:  #=========Block for RedHat========
-     - name: Install Apache WebServer for RedHat
-       yum: name=httpd state=latest 
+      
 
-     - name: Start WebServer service for RedHat
-       service: name=httpd state=started enabled=yes
-
-     - name: Stop Firewall from RedHat
-       service: name=firewalld state=stopped enabled=no  #
-    when: ansible_os_family=="RedHat"
-    
-  - block: #==========Block for Debian========
-     - name: Install Apache WebServer for Debian
-       apt: name=apache2 state=latest
-     
-     - name: Start WebServer service for Debian
-       service: name=apache2 state=started enabled=yes
-    when: ansible_os_family=="Debian"
+  
 
 
-  - name: Copy start page 
-    template: src={{ source_path }} dest={{ dest_path }}/index.html mode=0555
-    notify:  #если сработает этот такск при запуске плэйбука запустятся и хэндлеры 
-      - Restart Apache RedHat
-      - Restart Apache Debian
+  
 
 
-  handlers: 
-  - name: Restart Apache RedHat
-    service: name=httpd state=restarted 
-    when: ansible_os_family=="RedHat"
-
-  - name: Restart Apache Debian
-    service: name=apache2 state=restarted 
-    when: ansible_os_family=="Debian"
+  

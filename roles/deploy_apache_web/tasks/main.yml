@@ -1,0 +1,26 @@
+---
+# tasks file for deploy_apache_web
+- block:  #=========Block for RedHat========
+     - name: Install Apache WebServer for RedHat
+       yum: name=httpd state=latest 
+
+     - name: Start WebServer service for RedHat
+       service: name=httpd state=started enabled=yes
+
+     - name: Stop Firewall from RedHat
+       service: name=firewalld state=stopped enabled=no  #выключает фаервол
+  when: ansible_os_family=="RedHat"
+    
+- block: #==========Block for Debian========
+     - name: Install Apache WebServer for Debian
+       apt: name=apache2 state=latest
+     
+     - name: Start WebServer service for Debian
+       service: name=apache2 state=started enabled=yes
+  when: ansible_os_family=="Debian"
+
+- name: Copy start page 
+  template: src=index.j2 dest={{ dest_path }}/index.html mode=0555
+  notify:  #если сработает этот такск при запуске плэйбука запустятся и хэндлеры 
+      - Restart Apache RedHat
+      - Restart Apache Debian  
