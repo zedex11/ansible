@@ -1,0 +1,82 @@
+---
+- name: Instal and Tune TomCat server
+  hosts: linux3 
+  become: yes 
+
+  tasks:
+
+  - name: Remove previus version Java 
+    yum: 
+      name: 'java-1.7*' 
+      state: absent
+
+  - name: Install new version Java 
+    yum: 
+      name: 'java-1.8*' 
+      state: latest
+
+  - name: Download TomCat server
+    get_url:
+      url: https://mirror.datacenter.by/pub/apache.org/tomcat/tomcat-9/v9.0.36/bin/apache-tomcat-9.0.36.tar.gz
+      dest: /opt
+    notify: Extract TomCat server
+     
+  - name: Copy service file for create and running service
+    copy:
+      src: ./tomcat.service
+      dest: /etc/systemd/system
+
+  - name: Create new user for created service tomcat
+    user: 
+      name: tomcat
+      system: yes
+
+  - name: Change premissions for TomCat directory
+    file:
+      path: /opt/apache-tomcat-9.0.36
+      state: directory
+      recurse: yes
+      owner: tomcat 
+      group: tomcat
+
+  - name: Run TomCat server 
+    systemd:
+      daemon_reload: yes 
+      name: tomcat
+      enabled: yes
+      state: started 
+
+  - name: Tune Firewall 
+    firewalld:
+      port: 8080/tcp
+      permanent: yes
+      state: enabled
+    notify: Restart Firewall
+  
+  - name: Copy configure file 
+    copy:
+      src: ./context.xml
+      dest: /opt/apache-tomcat-9.0.36/webapps/host-manager/META-INF   
+      
+  - name: Copy configure file2
+    copy:
+      src: ./context.xml
+      dest: /opt/apache-tomcat-9.0.36/webapps/manager/META-INF/
+
+  - name: Copy User File 
+    copy:
+      src: ./tomcat-users.xml
+      dest: /opt/apache-tomcat-9.0.36/conf
+
+  handlers: 
+  - name: Extract TomCat server
+    unarchive: 
+      src: /opt/apache-tomcat-9.0.36.tar.gz
+      dest: /opt
+      remote_src: yes   
+
+  - name: Restart Firewall
+    systemd: 
+      name: firewalld
+      state: restarted     
+

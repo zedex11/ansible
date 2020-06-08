@@ -1,0 +1,19 @@
+[Unit]
+Description=Tomcat
+After=network.target
+
+[Service]
+User=tomcat
+WorkingDirectory=/opt/apache-tomcat-9.0.36
+Environment=JRE_HOME=/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.252.b09-2.el8_1.x86_64/jre
+Environment=JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.252.b09-2.el8_1.x86_64/jre
+Environment=CATALINA_HOME=/opt/apache-tomcat-9.0.36
+Environment=CATALINE_BASE=/opt/apache-tomcat-9.0.36
+Environment='CATALINA_OPTS=-Dfile.encoding=ISO-8859-1'
+Environment='JAVA_OPTS=-server -Xms512M -Xmx1G -Djava.awt.headless=true -Djava.security.egd=file:/dev/./urandom  -XX:+UseConcMarkSweepGC -Djava.net.preferIPv4Stack=true -Dsun.net.inetaddr.ttl=0'
+ExecStart=/opt/apache-tomcat-9.0.36/bin/catalina.sh run
+ExecStop=/opt/apache-tomcat-9.0.36/bin/shutdown.sh
+SyslogIdentifier=tomcat-%i
+
+[Install]
+WantedBy=multi-user.target
