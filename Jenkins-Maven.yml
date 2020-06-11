@@ -1,0 +1,50 @@
+---
+- name: Jenkins + Maven install 
+  hosts: linux2 
+  become: yes 
+
+  tasks:
+
+  - name: Remove previus version Java 
+    yum: 
+      name: 'java-1.7*' 
+      state: absent
+
+  - name: Install new version Java 
+    yum: 
+      name: 'java-1.8*' 
+      state: latest
+
+  - name: Maven download 
+    get_url:
+      url: https://mirror.datacenter.by/pub/apache.org/maven/maven-3/3.6.3/binaries/apache-maven-3.6.3-bin.tar.gz
+      dest: /opt
+
+  - name: Extract Maven
+    unarchive: 
+      src: /opt/apache-maven-3.6.3-bin.tar.gz
+      dest: /opt
+      remote_src: yes
+  
+  - name: Install Jenkins
+    get_url:
+      url: https://pkg.jenkins.io/redhat-stable/jenkins.repo
+      dest: /etc/yum.repos.d/jenkins.repo
+  
+  - name: Install Jenkins2
+    shell: 
+      cmd: rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io.key
+
+  - name: Install Jenkins 3
+    yum: 
+      name: '*'
+      state: latest
+      update_cache: yes 
+
+  - name: Install Jenkins 4 
+    yum: 
+      name: jenkins
+      state: latest
+
+  environment: 
+    PATH: /opt/apache-maven-3.6.3/bin:{{ ansible_env.PATH }}:{{ ansible_env_JAVA_HOME }}
