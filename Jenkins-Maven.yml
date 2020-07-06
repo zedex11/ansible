@@ -56,7 +56,13 @@
       name: jenkins
       state: started
       enabled: yes  
+  
 
+  - name: Copy secret code file from jenkins serv 
+    fetch:
+      src: /var/lib/jenkins/secrets/initialAdminPassword
+      dest: ./
+      flat: yes
 
   environment: 
     PATH: /opt/apache-maven-3.6.3/bin:{{ ansible_env.PATH }}:{{ ansible_env_JAVA_HOME }}
